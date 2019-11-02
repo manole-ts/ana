@@ -1,0 +1,25 @@
+{
+  "name": "ana",
+  "version": "0.1.0",
+  "description": "A type aware dependency injection container for TypeScript",
+  "main": "index.js",
+  "repository": "https://github.com/manole-ts/ana.git",
+  "author": "Bogdan Ungureanu <wizardwizard68@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "typescript": "^3.6.4"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.4",
+    "@types/mocha": "^5.2.7",
+    "@types/sinon": "^7.5.0",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
+    "prettier": "^1.18.2",
+    "sinon": "^7.5.0",
+    "ts-node": "^8.4.1",
+    "ts-sinon": "^1.0.24",
+    "tslint": "^5.20.0"
+  }
+}
