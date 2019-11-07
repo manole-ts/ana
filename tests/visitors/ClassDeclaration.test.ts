@@ -1,18 +1,13 @@
 import { expect } from "chai";
 
-import { createProgram, Program } from "typescript";
+import { createProgram } from "typescript";
 import * as ts from "typescript";
 import ClassDeclaration from "../../src/visitors/ClassDeclaration";
 import UnsupportedNodeKind from "../../src/visitors/errors/UnsupportedNodeKind";
 
 describe("Class declaration handler", function() {
-    let program: Program;
-    let handler: ClassDeclaration;
-
-    before(function() {
-        program = createProgram([], {});
-        handler = new ClassDeclaration();
-    });
+    const program = createProgram([], {});
+    const handler = new ClassDeclaration();
 
     it("should accept a class declaration node", () => {
         const path = "tests/cases/ClassDeclarationWithInterface.ts";
