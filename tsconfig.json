@@ -1,9 +1,13 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "module": "commonjs",
     "target": "esnext",
     "sourceMap": true,
-    "strict": true
+    "strict": true,
+    "paths": {
+      "@manole-ts/ana": ["src/index"]
+    }
   },
   "exclude": [
     "node_modules"
