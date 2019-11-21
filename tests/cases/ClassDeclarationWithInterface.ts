@@ -3,7 +3,7 @@ interface FooInterface {
     test: string;
 }
 
-class ClassDeclarationWithInterface implements FooInterface {
+export class ClassDeclarationWithInterface implements FooInterface {
     public test: string;
 
     constructor(test: FooInterface, testin: string) {
