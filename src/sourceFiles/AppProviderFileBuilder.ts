@@ -3,18 +3,24 @@ import * as ts from "typescript";
 import { IProviderFileBuilder } from "./IProviderFileBuilder";
 import ProviderAstService, { ITypeImport } from "./ProviderAstService";
 
+interface IImportStatement { statement: ts.Statement; container: ts.Identifier; provider: ts.Identifier; }
+
 export class AppProviderFileBuilder implements IProviderFileBuilder {
 
-    private static createImportStatement(): ts.Statement {
-        return ts.createImportDeclaration(
+    private static createImportStatement(): IImportStatement {
+        const iContainer = ts.createOptimisticUniqueName("IContainer");
+        const iServiceProvider = ts.createOptimisticUniqueName("IServiceProvider");
+        const statement = ts.createImportDeclaration(
             undefined,
             undefined,
             ts.createImportClause(undefined, ts.createNamedImports([
-                ts.createImportSpecifier(undefined, ts.createIdentifier("IContainer")),
-                ts.createImportSpecifier(undefined, ts.createIdentifier("IServiceProvider")),
+                ts.createImportSpecifier(undefined, iContainer),
+                ts.createImportSpecifier(undefined, iServiceProvider),
             ])),
             ts.createStringLiteral("@manole-ts/ana"),
         );
+
+        return { statement, container: iContainer, provider: iServiceProvider };
     }
 
     private imports: { [key: string]: ITypeImport } = {};
@@ -34,8 +40,10 @@ export class AppProviderFileBuilder implements IProviderFileBuilder {
         const file = ts.createSourceFile(this.fileName, "", ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS);
         const imports = Object.values(this.imports).map(typeImport => typeImport.declaration);
 
+        const importResult = AppProviderFileBuilder.createImportStatement();
+        const classDeclaration = this.createClassDeclaration(importResult.container, importResult.provider);
         const statements = ts.createNodeArray(
-            [AppProviderFileBuilder.createImportStatement(), ...imports, this.createClassDeclaration()],
+            [importResult.statement, ...imports, classDeclaration],
         );
 
         const source = ts.createPrinter().printList(ts.ListFormat.SourceFileStatements, statements, file);
@@ -43,7 +51,7 @@ export class AppProviderFileBuilder implements IProviderFileBuilder {
         return ts.createSourceFile(this.fileName, source, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS);
     }
 
-    public addBind(fromType: ts.InterfaceType, toType: ts.InterfaceType) {
+    public addBind(fromType: ts.InterfaceType, toType: ts.InterfaceType): void {
         const fromName = this.providerAstService.getFullyQualifiedName(fromType);
         const toName = this.providerAstService.getFullyQualifiedName(toType);
 
@@ -63,14 +71,14 @@ export class AppProviderFileBuilder implements IProviderFileBuilder {
         );
     }
 
-    private createClassDeclaration() {
+    private createClassDeclaration(container: ts.Identifier, provider: ts.Identifier) {
         const typeParameter = ts.createParameter(
             undefined,
             undefined,
             undefined,
             "container",
             undefined,
-            ts.createTypeReferenceNode(ts.createIdentifier("IContainer"), undefined),
+            ts.createTypeReferenceNode(container, undefined),
             undefined,
         );
         const configureMethod = ts.createMethod(
@@ -88,10 +96,10 @@ export class AppProviderFileBuilder implements IProviderFileBuilder {
         return ts.createClassDeclaration(
             undefined,
             [ts.createToken(ts.SyntaxKind.ExportKeyword), ts.createToken(ts.SyntaxKind.DefaultKeyword)],
-            "AppProvider",
+            ts.createOptimisticUniqueName("AutoWireServiceProvider"),
             undefined,
             [ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
-                ts.createExpressionWithTypeArguments(undefined, ts.createIdentifier("IServiceProvider")),
+                ts.createExpressionWithTypeArguments(undefined, provider),
             ])],
             [configureMethod],
         );
