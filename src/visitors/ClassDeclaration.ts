@@ -15,6 +15,6 @@ export default class ClassDeclaration implements INodeVisitor {
             throw new UnsupportedNodeKind();
         }
 
-        return checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration) as ts.InterfaceType;
+        return checker.getTypeAtLocation(node) as ts.InterfaceType;
     }
 }

@@ -9,10 +9,14 @@ export default class SourceFileVisitor {
         const types: ts.Type[]  = [];
 
         sourceFile.forEachChild(node => {
-            const type = this.visitChild(node, checker);
 
-            if (type) {
-                types.push(type);
+            try {
+                const type = this.visitChild(node, checker);
+                if (type) {
+                    types.push(type);
+                }
+            } catch (e) {
+                return;
             }
         });
 
