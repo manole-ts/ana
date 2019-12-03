@@ -87,6 +87,7 @@ describe("AppProviderFileBuilder", () => {
         const node = program.getSourceFile(interfacePath)!.statements[0];
         const interface1 = program.getTypeChecker().getTypeAtLocation(node) as ts.InterfaceType;
 
+        program.getSourceFile(interfacePath)!.fileName = interfacePath;
         program.getSourceFile(secondInterfacePath)!.fileName = secondInterfacePath;
 
         const node2 = program.getSourceFile(secondInterfacePath)!.statements[0];
