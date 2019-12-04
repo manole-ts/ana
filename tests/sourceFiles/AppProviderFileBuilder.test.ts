@@ -7,7 +7,7 @@ import {AppProviderFileBuilder} from "../../src/sourceFiles/AppProviderFileBuild
 import * as ts from "typescript";
 import {createProgram} from "typescript";
 
-import ProviderAstService, {ITypeImport} from "../../src/sourceFiles/ProviderAstService";
+import AstService, {ITypeImport} from "../../src/sourceFiles/AstService";
 import { assertStructuralEquals } from "../utils/asserts";
 
 chai.use(sinonChai);
@@ -23,7 +23,7 @@ describe("AppProviderFileBuilder", () => {
 
         const builder = new AppProviderFileBuilder(
             "generatedAppContainer.ts",
-            new ProviderAstService(classWithInterfaceProgram.getTypeChecker()),
+            new AstService(classWithInterfaceProgram.getTypeChecker()),
         );
 
         const ast = builder.getSourceFile();
@@ -38,7 +38,7 @@ describe("AppProviderFileBuilder", () => {
     });
 
     it("should add a new bind to the provider", () => {
-        const astService = sinonts.stubConstructor(ProviderAstService);
+        const astService = sinonts.stubConstructor(AstService);
 
         const builder = new AppProviderFileBuilder("generatedAppContainer.ts", astService);
 
@@ -56,7 +56,7 @@ describe("AppProviderFileBuilder", () => {
     });
 
     it("should import only once a type", () => {
-        const astService = sinonts.stubConstructor(ProviderAstService);
+        const astService = sinonts.stubConstructor(AstService);
 
         const builder = new AppProviderFileBuilder("generatedAppContainer.ts", astService);
 
@@ -81,7 +81,7 @@ describe("AppProviderFileBuilder", () => {
         const secondInterfacePath = "tests/cases/SecondExternalInterface.ts";
         const program = createProgram([path, interfacePath, secondInterfacePath, secondPath], { });
 
-        const builder = new AppProviderFileBuilder("", new ProviderAstService(program.getTypeChecker()));
+        const builder = new AppProviderFileBuilder("", new AstService(program.getTypeChecker()));
 
 
         const node = program.getSourceFile(interfacePath)!.statements[0];

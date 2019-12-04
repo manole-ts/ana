@@ -2,17 +2,17 @@ import { expect } from "chai";
 import { createProgram } from "typescript";
 
 import * as ts from "typescript";
-import ProviderAstService from "../../src/sourceFiles/ProviderAstService";
+import AstService from "../../src/sourceFiles/AstService";
 import { printArrayNode, printCode } from "../utils/printer";
 
-describe("ProviderAstService tests", () => {
+describe("AstService tests", () => {
     const path = "tests/cases/ClassWithExternalInterface.ts";
     const secondPathClass = "tests/cases/SecondClassWithExternalInterface.ts";
 
     const interfacePath = "tests/cases/ExternalInterface.ts";
     const secondInterfacePath = "tests/cases/SecondExternalInterface.ts";
     const program = createProgram([path, interfacePath, secondInterfacePath, secondPathClass], { });
-    const service = new ProviderAstService(program.getTypeChecker());
+    const service = new AstService(program.getTypeChecker());
 
     const getImportsOutput = (indexStatement: number, indexStatement2: number) => {
         program.getSourceFile(interfacePath)!.fileName = interfacePath;

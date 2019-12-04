@@ -6,7 +6,7 @@ export interface ITypeImport {
     declaration: ImportDeclaration;
 }
 
-export default class ProviderAstService {
+export default class AstService {
 
     private static isDefaultExport(declaration: ts.Declaration): boolean {
         if (!declaration.modifiers) {
@@ -40,7 +40,7 @@ export default class ProviderAstService {
     }
 
     public createImportDeclaration(type: ts.InterfaceType): ITypeImport {
-        const isDefault = ProviderAstService.isDefaultExport(type.symbol.declarations[0]!);
+        const isDefault = AstService.isDefaultExport(type.symbol.declarations[0]!);
         const identifier = ts.createOptimisticUniqueName(this.checker.typeToString(type));
 
         const propertyName = isDefault ? identifier : undefined;

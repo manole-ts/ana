@@ -1,7 +1,7 @@
 import * as ts from "typescript";
 
+import AstService, { ITypeImport } from "./AstService";
 import { IProviderFileBuilder } from "./IProviderFileBuilder";
-import ProviderAstService, { ITypeImport } from "./ProviderAstService";
 
 interface IImportStatement { statement: ts.Statement; container: ts.Identifier; provider: ts.Identifier; }
 
@@ -29,9 +29,9 @@ export class AppProviderFileBuilder implements IProviderFileBuilder {
 
     private readonly fileName: string;
 
-    private providerAstService: ProviderAstService;
+    private providerAstService: AstService;
 
-    constructor(fileName: string, providerAstService: ProviderAstService) {
+    constructor(fileName: string, providerAstService: AstService) {
         this.fileName = fileName;
         this.providerAstService = providerAstService;
     }
