@@ -1,7 +1,8 @@
 import * as ts from "typescript";
 
-import AstService, { ITypeImport } from "./AstService";
+import AstService from "./AstService";
 import { IProviderFileBuilder } from "./IProviderFileBuilder";
+import {ITypeImport} from "./ITypeImport";
 
 interface IImportStatement { statement: ts.Statement; container: ts.Identifier; provider: ts.Identifier; }
 

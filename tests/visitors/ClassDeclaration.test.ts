@@ -2,8 +2,8 @@ import { expect } from "chai";
 
 import { createProgram } from "typescript";
 import * as ts from "typescript";
-import ClassDeclaration from "../../src/visitors/ClassDeclaration";
-import UnsupportedNodeKind from "../../src/visitors/errors/UnsupportedNodeKind";
+import ClassDeclaration from "../../src/compiler/visitors/ClassDeclaration";
+import UnsupportedNodeKind from "../../src/compiler/visitors/errors/UnsupportedNodeKind";
 
 describe("Class declaration handler", function() {
     const program = createProgram([], {});

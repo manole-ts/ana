@@ -2,8 +2,8 @@ import { expect } from "chai";
 import { createProgram } from "typescript";
 import * as ts from "typescript";
 
-import SourceFileVisitor from "../src/SourceFIleVisitor";
-import ClassDeclaration from "../src/visitors/ClassDeclaration";
+import SourceFileVisitor from "../src/compiler/SourceFIleVisitor";
+import ClassDeclaration from "../src/compiler/visitors/ClassDeclaration";
 
 describe("Source file visitor", () => {
     const handler = new SourceFileVisitor({

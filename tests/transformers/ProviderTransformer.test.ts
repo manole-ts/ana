@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import {createProgram} from "typescript";
 import * as ts from "typescript";
-import {HeritageFacade} from "../../src/facades/HeritageFacade";
-import ProviderTransformerFactory from "../../src/transformers/ProviderTransformerFactory";
+import {HeritageFacade} from "../../src/compiler/facades/HeritageFacade";
+import ProviderTransformerFactory from "../../src/compiler/transformers/ProviderTransformerFactory";
 
 describe("ProviderTransformer", function() {
     it("should replace bind with bindAlias", function() {

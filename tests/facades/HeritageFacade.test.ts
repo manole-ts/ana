@@ -3,7 +3,7 @@ import * as ts from "typescript";
 
 import { expect } from "chai";
 import { stubInterface } from "ts-sinon";
-import { HeritageFacade } from "../../src/facades/HeritageFacade";
+import { HeritageFacade } from "../../src/compiler/facades/HeritageFacade";
 
 describe("Heritage facade tests", () => {
     const heritageFacade = new HeritageFacade();

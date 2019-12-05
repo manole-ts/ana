@@ -4,9 +4,9 @@ import sinon from "ts-sinon";
 
 import * as ts from "typescript";
 import {createProgram} from "typescript";
-import { ServiceProviderAutoBind } from "../../src/emitters/ServiceProviderAutoBind";
-import {HeritageFacade} from "../../src/facades/HeritageFacade";
-import {IProviderFileBuilder} from "../../src/sourceFiles/IProviderFileBuilder";
+import { ServiceProviderAutoBind } from "../../src/compiler/emitters/ServiceProviderAutoBind";
+import {HeritageFacade} from "../../src/compiler/facades/HeritageFacade";
+import {IProviderFileBuilder} from "../../src/compiler/sourceFiles/IProviderFileBuilder";
 
 describe("Container register bind emitter", () => {
     const checker = createProgram([], {}, undefined, undefined, []).getTypeChecker();

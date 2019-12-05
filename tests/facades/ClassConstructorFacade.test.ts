@@ -1,6 +1,6 @@
 import { createProgram } from "typescript";
 import * as ts from "typescript";
-import { ClassConstructorFacade } from "../../src/facades/ClassConstructorFacade";
+import { ClassConstructorFacade } from "../../src/compiler/facades/ClassConstructorFacade";
 
 import {expect} from "chai";
 

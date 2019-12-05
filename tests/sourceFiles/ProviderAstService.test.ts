@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { createProgram } from "typescript";
 
 import * as ts from "typescript";
-import AstService from "../../src/sourceFiles/AstService";
+import AstService from "../../src/compiler/sourceFiles/AstService";
 import { printArrayNode, printCode } from "../utils/printer";
 
 describe("AstService tests", () => {

@@ -2,13 +2,14 @@ import { expect } from "chai";
 import * as chai from "chai";
 import * as sinonChai from "sinon-chai";
 import * as sinonts from "ts-sinon";
-import {AppProviderFileBuilder} from "../../src/sourceFiles/AppProviderFileBuilder";
+import {AppProviderFileBuilder} from "../../src/compiler/sourceFiles/AppProviderFileBuilder";
 
 import * as ts from "typescript";
 import {createProgram} from "typescript";
 
-import AstService, {ITypeImport} from "../../src/sourceFiles/AstService";
+import AstService from "../../src/compiler/sourceFiles/AstService";
 import { assertStructuralEquals } from "../utils/asserts";
+import {ITypeImport} from "../../src/compiler/sourceFiles/ITypeImport";
 
 chai.use(sinonChai);
 

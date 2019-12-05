@@ -1,10 +1,5 @@
 import * as ts from "typescript";
-import {Identifier, ImportDeclaration} from "typescript";
-
-export interface ITypeImport {
-    identifier: Identifier;
-    declaration: ImportDeclaration;
-}
+import {ITypeImport} from "./ITypeImport";
 
 export default class AstService {
 
