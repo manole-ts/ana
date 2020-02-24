@@ -4,5 +4,5 @@ import { MyClass as MyClass } from "tests/cases/SecondClassWithExternalInterface
 import IDefaultInterface_1 from "tests/cases/ExternalInterface";
 import { MyClass as MyClass_1 } from "tests/cases/ClassWithExternalInterface";
 export default class AutoWireServiceProvider implements IServiceProvider {
-    public configure(container: IContainer) { container.bindAlias<IDefaultInterface>("\"tests/cases/SecondExternalInterface\".IDefaultInterface", MyClass); container.bindAlias<IDefaultInterface_1>("\"tests/cases/ExternalInterface\".IDefaultInterface", MyClass_1); }
+    public configure(container: IContainer) { container.bindInternal<IDefaultInterface>({ kind: 1, fqcn: "\"tests/cases/SecondExternalInterface\".IDefaultInterface" }, MyClass); container.bindInternal<IDefaultInterface_1>({ kind: 1, fqcn: "\"tests/cases/ExternalInterface\".IDefaultInterface" }, MyClass_1); }
 }

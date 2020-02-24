@@ -7,6 +7,7 @@ import {createProgram} from "typescript";
 import { ServiceProviderAutoBind } from "../../src/compiler/emitters/ServiceProviderAutoBind";
 import {HeritageFacade} from "../../src/compiler/facades/HeritageFacade";
 import {IProviderFileBuilder} from "../../src/compiler/sourceFiles/IProviderFileBuilder";
+import {TypeExportable} from "../utils/TypeExportable";
 
 describe("Container register bind emitter", () => {
     const checker = createProgram([], {}, undefined, undefined, []).getTypeChecker();
@@ -26,6 +27,7 @@ describe("Container register bind emitter", () => {
         const containerBind = new ServiceProviderAutoBind(
             heritageFacade,
             stubChecker,
+            new TypeExportable(),
         );
 
         const providerBuilder = sinonts.stubInterface<IProviderFileBuilder>();
@@ -48,9 +50,13 @@ describe("Container register bind emitter", () => {
             .withArgs(type.symbol.valueDeclaration as ts.ClassDeclaration, stubChecker, ts.SyntaxKind.ExtendsKeyword)
             .returns([parentType]);
 
+        const typeExportable = sinon.createStubInstance(TypeExportable);
+        typeExportable.isExportable.returns(true);
+
         const containerBind = new ServiceProviderAutoBind(
             heritageFacade,
             stubChecker,
+            typeExportable,
         );
 
         const providerBuilder = sinonts.stubInterface<IProviderFileBuilder>();

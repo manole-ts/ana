@@ -1,5 +1,6 @@
 import * as ts from "typescript";
 import {HeritageFacade} from "../facades/HeritageFacade";
+import {GraphNodeServiceFactory} from "../GraphNodeServiceFactory";
 import {ProviderTransformer} from "./ProviderTransformer";
 
 export default class ProviderTransformerFactory {
@@ -10,7 +11,9 @@ export default class ProviderTransformerFactory {
     }
 
     public createTransformerFactory(context: ts.TransformationContext) {
-        return (new ProviderTransformer(this.checker, this.heritageFacade, context)).visit;
+        const service = (new GraphNodeServiceFactory()).createService(this.checker);
+
+        return (new ProviderTransformer(this.checker, this.heritageFacade, context, service)).visit;
     }
 }
 

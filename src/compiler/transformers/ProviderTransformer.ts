@@ -1,12 +1,14 @@
 import * as ts from "typescript";
-import { TransformationContext } from "typescript";
+import {ClassDeclaration, TransformationContext} from "typescript";
 import { HeritageFacade } from "../facades/HeritageFacade";
+import {GraphNodeService} from "../GraphNodeService";
 
 export class ProviderTransformer {
     constructor(
         private checker: ts.TypeChecker,
         private heritageFacade: HeritageFacade,
         private context: TransformationContext,
+        private service: GraphNodeService,
     ) {
         this.visit = this.visit.bind(this);
     }
@@ -25,13 +27,13 @@ export class ProviderTransformer {
 
     private visitServiceProvider(provider: ts.Node): ts.Node {
         return ts.visitEachChild(
-            this.changeBind(provider),
+            this.changeContainerBind(provider),
             (node: ts.Node) => this.visitServiceProvider(node),
             this.context,
         );
     }
 
-    private changeBind(node: ts.Node): ts.Node {
+    private changeContainerBind(node: ts.Node): ts.Node {
         if (!ts.isCallExpression(node)) {
             return node;
         }
@@ -57,7 +59,7 @@ export class ProviderTransformer {
         }
 
         const newNode = ts.getMutableClone(node);
-        newNode.expression = ts.updatePropertyAccess(propertyAccess, propertyAccess.expression, ts.createIdentifier("bindAlias"));
+        newNode.expression = ts.updatePropertyAccess(propertyAccess, propertyAccess.expression, ts.createIdentifier("bindInternal"));
 
         const typeArg = this.checker.getTypeFromTypeNode(node.typeArguments![0]);
 
@@ -65,8 +67,19 @@ export class ProviderTransformer {
             newNode,
             newNode.expression,
             node.typeArguments,
-            [ts.createStringLiteral(this.checker.getFullyQualifiedName(typeArg.symbol)), ...node.arguments],
+            [this.createObject(this.service.transform(typeArg)), ...node.arguments],
         );
+    }
+
+    private createObject(property: any) {
+        if (typeof property === "object" && property !== null) {
+            const entries: ts.PropertyAssignment[] = Object
+                .entries(property)
+                .map((entry) => ts.createPropertyAssignment(entry[0], this.createObject(entry[1])));
+            return ts.createObjectLiteral(entries);
+        }
+
+        return ts.createLiteral(property);
     }
 
     private isServiceProvider(node: ts.Node): node is ts.ClassDeclaration {
@@ -77,7 +90,7 @@ export class ProviderTransformer {
         const types = this.heritageFacade.getImplementsByHeritage(node, this.checker, ts.SyntaxKind.ImplementsKeyword);
 
         for (const type of types) {
-            const declaration = type.symbol.declarations[0];
+            const declaration = type.symbol.declarations[0] as ClassDeclaration;
             if (!ts.isInterfaceDeclaration(declaration)) {
                 continue;
             }
@@ -85,7 +98,7 @@ export class ProviderTransformer {
             /**
              * @TODO: Naive check, I'll need a better way to identify the interface.
              */
-            if (declaration.name.escapedText === "IServiceProvider") {
+            if (declaration.name!.escapedText === "IServiceProvider") {
                 return true;
             }
         }

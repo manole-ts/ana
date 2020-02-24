@@ -70,10 +70,24 @@ import { ISecondInterface as ISecondInterface_1 } from "tests/cases/SecondExtern
     it("should create a binding", () => {
         program.getSourceFile(interfacePath)!.fileName = interfacePath;
 
-        const ast = service.createBindingExpression(ts.createIdentifier("from"), ts.createIdentifier("to"));
+        const ast = service.createBindingExpression(
+            { identifier: ts.createIdentifier("from") },
+            ts.createIdentifier("to"),
+        );
 
         const output = printCode(ast);
         expect(output).to.eql("container.bind<from>(to);");
     });
 
+    it("should create a binding with typeArgs", function() {
+        const numberNode = ts.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
+
+        const ast = service.createBindingExpression(
+            { identifier: ts.createIdentifier("from"), typeArgs: [numberNode] },
+            ts.createIdentifier("to"),
+        );
+
+        const output = printCode(ast);
+        expect(output).to.eql("container.bind<from<number>>(to);");
+    });
 });

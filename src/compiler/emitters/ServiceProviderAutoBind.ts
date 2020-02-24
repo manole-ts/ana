@@ -1,24 +1,15 @@
 import * as ts from "typescript";
+import {TypeExportable} from "../../../tests/utils/TypeExportable";
 import {HeritageFacade} from "../facades/HeritageFacade";
 import {IProviderFileBuilder} from "../sourceFiles/IProviderFileBuilder";
 
 export class ServiceProviderAutoBind {
 
-    private static isExportable(type: ts.InterfaceType): boolean {
-        if (!type.symbol.declarations[0].modifiers) {
-            return false;
-        }
-
-        for (const modifier of type.symbol.declarations[0].modifiers) {
-            if (modifier.kind === ts.SyntaxKind.ExportKeyword) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    constructor(private heritageFacade: HeritageFacade, private checker: ts.TypeChecker) {}
+    constructor(
+        private heritageFacade: HeritageFacade,
+        private checker: ts.TypeChecker,
+        private typeExportable: TypeExportable,
+    ) {}
 
     public bindType(type: ts.InterfaceType, providerFileBuilder: IProviderFileBuilder) {
         const extendHeritage = this.heritageFacade.getImplementsByHeritage(
@@ -34,7 +25,7 @@ export class ServiceProviderAutoBind {
         );
 
         for (const fromType of implementsHeritage) {
-            if (!ServiceProviderAutoBind.isExportable(fromType)) {
+            if (!this.typeExportable.isExportable(fromType)) {
                 continue;
             }
 
@@ -42,7 +33,7 @@ export class ServiceProviderAutoBind {
         }
 
         for (const from of extendHeritage) {
-            if (!ServiceProviderAutoBind.isExportable(from)) {
+            if (!this.typeExportable.isExportable(from)) {
                 continue;
             }
 

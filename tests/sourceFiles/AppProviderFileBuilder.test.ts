@@ -7,9 +7,10 @@ import {AppProviderFileBuilder} from "../../src/compiler/sourceFiles/AppProvider
 import * as ts from "typescript";
 import {createProgram} from "typescript";
 
+import {HeritageFacade} from "../../src/compiler/facades/HeritageFacade";
 import AstService from "../../src/compiler/sourceFiles/AstService";
-import { assertStructuralEquals } from "../utils/asserts";
 import {ITypeImport} from "../../src/compiler/sourceFiles/ITypeImport";
+import { assertStructuralEquals } from "../utils/asserts";
 
 chai.use(sinonChai);
 
@@ -48,6 +49,7 @@ describe("AppProviderFileBuilder", () => {
         astService.getFullyQualifiedName.withArgs(fromType).returns("fromType");
         astService.getFullyQualifiedName.withArgs(toType).returns("toType");
         astService.createImportDeclaration.returns(sinonts.stubInterface<ITypeImport>());
+        astService.getTypeArguments.returns([]);
 
         builder.addBind(fromType, toType);
 
@@ -66,7 +68,7 @@ describe("AppProviderFileBuilder", () => {
         astService.getFullyQualifiedName.withArgs(fromType).returns("fromType");
         astService.getFullyQualifiedName.withArgs(toType).returns("toType");
         astService.createImportDeclaration.returns(sinonts.stubInterface<ITypeImport>());
-
+        astService.getTypeArguments.returns([]);
         builder.addBind(fromType, toType);
         builder.addBind(fromType, toType);
 
@@ -108,5 +110,36 @@ describe("AppProviderFileBuilder", () => {
 
         const output = ts.createPrinter().printFile(builder.getSourceFile());
         expect(output).to.eql(ts.sys.readFile("tests/cases/conformance/AppProviderConfigured.ts"));
+    });
+
+    it("should generate a bind with a generic interface", function() {
+        const secondPath = "tests/cases/SecondClassWithExternalInterface.ts";
+
+        const interfacePath = "tests/cases/ExternalInterface.ts";
+        const secondInterfacePath = "tests/cases/SecondExternalInterface.ts";
+        const genericClassInterfacePath = "tests/cases/ClassInterfaceGeneric.ts";
+        const program = createProgram(
+            [path, interfacePath, secondInterfacePath, secondPath, genericClassInterfacePath],
+            { },
+        );
+
+        const builder = new AppProviderFileBuilder("", new AstService(program.getTypeChecker()));
+
+        const class3 = program.getTypeChecker().getTypeAtLocation(
+            program.getSourceFile(genericClassInterfacePath)!.statements[2],
+        ) as ts.InterfaceType;
+
+        const heritageFacade = new HeritageFacade();
+
+        const interfaceType = heritageFacade.getHeritageOfType(
+            class3,
+            program.getTypeChecker(),
+            ts.SyntaxKind.ImplementsKeyword,
+        )[0];
+
+        builder.addBind(interfaceType, class3);
+
+        const output = ts.createPrinter().printFile(builder.getSourceFile());
+        expect(output).to.eql(ts.sys.readFile("tests/cases/conformance/AppProviderGenericConfigured.ts"));
     });
 });

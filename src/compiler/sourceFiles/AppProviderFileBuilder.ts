@@ -1,5 +1,6 @@
 import * as ts from "typescript";
 
+import {isTypeReference, isTypeVariable} from "../../../tests/utils/Guards";
 import AstService from "./AstService";
 import { IProviderFileBuilder } from "./IProviderFileBuilder";
 import {ITypeImport} from "./ITypeImport";
@@ -52,24 +53,52 @@ export class AppProviderFileBuilder implements IProviderFileBuilder {
         return ts.createSourceFile(this.fileName, source, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS);
     }
 
-    public addBind(fromType: ts.InterfaceType, toType: ts.InterfaceType): void {
-        const fromName = this.providerAstService.getFullyQualifiedName(fromType);
-        const toName = this.providerAstService.getFullyQualifiedName(toType);
+    public addBind(from: ts.ObjectType, to: ts.ObjectType): void {
+        const fromName = this.providerAstService.getFullyQualifiedName(from);
+        const toName = this.providerAstService.getFullyQualifiedName(to);
 
         if (!Object.prototype.hasOwnProperty.call(this.imports, fromName)) {
-            this.imports[fromName] = this.providerAstService.createImportDeclaration(fromType);
+            this.imports[fromName] = this.providerAstService.createImportDeclaration(from);
         }
         if (!Object.prototype.hasOwnProperty.call(this.imports, toName)) {
-            this.imports[toName] = this.providerAstService.createImportDeclaration(toType);
+            this.imports[toName] = this.providerAstService.createImportDeclaration(to);
         }
 
+        const fromTypeArgs = isTypeReference(from) ? this.getTypeReferenceNode(from) : undefined;
 
         this.methodStatements.push(
             this.providerAstService.createBindingExpression(
-                this.imports[fromName].identifier,
+                { identifier: this.imports[fromName].identifier, typeArgs: fromTypeArgs },
                 this.imports[toName].identifier,
             ),
         );
+    }
+
+    private getTypeReferenceNode(args: ts.TypeReference): ts.TypeNode[] {
+        return this.providerAstService.getTypeArguments(args)
+            .filter((type: ts.Type) => {
+                const parameter = type as ts.Type & { isThisType: boolean };
+                return !parameter.isThisType;
+            })
+            .map((type: ts.Type) => {
+                const name = this.providerAstService.getFullyQualifiedName(type);
+
+                if (!type.isClassOrInterface() && isTypeVariable(type)) {
+                    return ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
+                }
+
+                const params = isTypeReference(type) ? this.getTypeReferenceNode(type) : undefined;
+
+                if (!type.isClassOrInterface()) {
+                    return this.providerAstService.typeToTypeNode(type)!;
+                }
+
+                if (!Object.prototype.hasOwnProperty.call(this.imports, name)) {
+                    this.imports[name] = this.providerAstService.createImportDeclaration(type as ts.InterfaceType);
+                }
+
+                return ts.createTypeReferenceNode(this.imports[name].identifier, params);
+            });
     }
 
     private createClassDeclaration(container: ts.Identifier, provider: ts.Identifier) {

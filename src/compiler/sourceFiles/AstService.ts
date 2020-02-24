@@ -1,6 +1,8 @@
 import * as ts from "typescript";
 import {ITypeImport} from "./ITypeImport";
 
+interface IBindNode { identifier: ts.Identifier; typeArgs?: readonly ts.TypeNode[]; }
+
 export default class AstService {
 
     private static isDefaultExport(declaration: ts.Declaration): boolean {
@@ -23,25 +25,24 @@ export default class AstService {
         this.checker = checker;
     }
 
-    public createBindingExpression(fromTypeAlias: ts.Identifier, toTypeAlias: ts.Identifier): ts.ExpressionStatement {
-
+    public createBindingExpression(fromTypeAlias: IBindNode, toTypeAlias: ts.Identifier): ts.ExpressionStatement {
         return ts.createExpressionStatement(
             ts.createCall(
                 ts.createPropertyAccess(ts.createIdentifier("container"), "bind"),
-                [ts.createTypeReferenceNode(fromTypeAlias, undefined)],
+                [ts.createTypeReferenceNode(fromTypeAlias.identifier, fromTypeAlias.typeArgs)],
                 [toTypeAlias],
             ),
         );
     }
 
-    public createImportDeclaration(type: ts.InterfaceType): ITypeImport {
+    public createImportDeclaration(type: ts.ObjectType): ITypeImport {
         const isDefault = AstService.isDefaultExport(type.symbol.declarations[0]!);
-        const identifier = ts.createOptimisticUniqueName(this.checker.typeToString(type));
+        const identifier = ts.createOptimisticUniqueName(this.checker.symbolToString(type.symbol));
 
         const propertyName = isDefault ? identifier : undefined;
         const named = !isDefault ? ts.createNamedImports([
             ts.createImportSpecifier(
-                ts.createIdentifier(this.checker.typeToString(type)),
+                ts.createIdentifier(this.checker.symbolToString(type.symbol)),
                 identifier,
             ),
         ]) : undefined;
@@ -58,7 +59,32 @@ export default class AstService {
         return { identifier, declaration };
     }
 
-    public getFullyQualifiedName(type: ts.InterfaceType): string {
+    public getFullyQualifiedName(type: ts.Type): string {
+        if (!type.symbol) {
+            return this.checker.typeToString(type);
+        }
+
         return this.checker.getFullyQualifiedName(type.symbol);
+    }
+
+    public getTypeArguments(type: ts.TypeReference): readonly ts.Type[] {
+        const types = this.checker.getTypeArguments(type);
+
+        return types !== undefined ? types : [];
+    }
+
+    public createAstObjectFromObject(property: any) {
+        if (typeof property === "object" && property !== null) {
+            const entries: ts.PropertyAssignment[] = Object
+                .entries(property)
+                .map((entry) => ts.createPropertyAssignment(entry[0], this.createAstObjectFromObject(entry[1])));
+            return ts.createObjectLiteral(entries);
+        }
+
+        return ts.createLiteral(property);
+    }
+
+    public typeToTypeNode(type: ts.Type): ts.TypeNode | undefined {
+        return this.checker.typeToTypeNode(type);
     }
 }

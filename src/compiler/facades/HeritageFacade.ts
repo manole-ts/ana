@@ -5,7 +5,7 @@ export class HeritageFacade {
         node: ts.ClassDeclaration,
         checker: ts.TypeChecker,
         heritageType: ts.SyntaxKind.ImplementsKeyword | ts.SyntaxKind.ExtendsKeyword,
-    ): ts.InterfaceType[] {
+    ): ts.ObjectType[] {
 
         if (!node.heritageClauses) {
             return [];
@@ -13,7 +13,7 @@ export class HeritageFacade {
 
         const heritage = node.heritageClauses.find(element => element.token === heritageType);
 
-        return (heritage ? heritage.types.map((p) => checker.getTypeAtLocation(p)) : []) as ts.InterfaceType[];
+        return (heritage ? heritage.types.map((p) => checker.getTypeAtLocation(p)) : []) as ts.ObjectType[];
     }
 
     public getHeritageOfType(
