@@ -1,9 +1,6 @@
 import * as ts from "typescript";
-import {ServiceProviderAutoBind} from "./src/emitters/ServiceProviderAutoBind";
-import {HeritageFacade} from "./src/facades/HeritageFacade";
-import {AppProviderFileBuilder} from "./src/sourceFiles/AppProviderFileBuilder";
-import ProviderAstService from "./src/sourceFiles/ProviderAstService";
-import SourceFileVisitor from "./src/SourceFIleVisitor";
+import {DependencyInjectionBuilder} from "./compiler/DependencyInjectionBuilder";
+import SourceFileVisitor from "./compiler/SourceFIleVisitor";
 
 const formatHost: ts.FormatDiagnosticsHost = {
     getCanonicalFileName: path => path,
@@ -13,7 +10,7 @@ const formatHost: ts.FormatDiagnosticsHost = {
 
 export const watchMain = (sourceFileVisitor: SourceFileVisitor) => {
     const configPath = ts.findConfigFile(
-        /*searchPath*/ "./",
+        /*searchPath*/ process.cwd(),
         ts.sys.fileExists,
         "tsconfig.json",
     );
@@ -22,25 +19,17 @@ export const watchMain = (sourceFileVisitor: SourceFileVisitor) => {
         throw new Error("Could not find a valid 'tsconfig.json'.");
     }
 
-    const createProgram = ts.createEmitAndSemanticDiagnosticsBuilderProgram;
+    const createProgram = ts.createSemanticDiagnosticsBuilderProgram;
 
-    // Note that there is another overload for `createWatchCompilerHost` that takes
-    // a set of root files.
     const host = ts.createWatchCompilerHost(
         configPath,
-        {
-        },
+        { incremental: true, skipLibCheck: true },
         ts.sys,
         createProgram,
         reportDiagnostic,
         reportWatchStatusChanged,
     );
 
-
-    // You can technically override any given hook on the host, though you probably
-    // don't need to.
-    // Note that we're assuming `origCreateProgram` and `origPostProgramCreate`
-    // doesn't use `this` at all.
     const origCreateProgram = host.createProgram;
     host.createProgram = (
         rootNames: ReadonlyArray<string> | undefined,
@@ -54,35 +43,18 @@ export const watchMain = (sourceFileVisitor: SourceFileVisitor) => {
     };
 
     host.afterProgramCreate = builderProgram => {
-        const serviceProviderBind = new ServiceProviderAutoBind(
-            new HeritageFacade(),
-            builderProgram.getProgram().getTypeChecker(),
-        );
-
-        const serviceProviderBuilder = new AppProviderFileBuilder(
-            "./containers/generated-container.ts",
-            new ProviderAstService(builderProgram.getProgram().getTypeChecker()),
-        );
+        const builder = new DependencyInjectionBuilder(builderProgram.getProgram().getTypeChecker(), sourceFileVisitor);
 
         for (const sourceFile of builderProgram.getSourceFiles()) {
-            const types = sourceFileVisitor
-                .visit(sourceFile, builderProgram.getProgram().getTypeChecker()) as ts.InterfaceType[];
-
-            for (const type of types) {
-                serviceProviderBind.bindType(type, serviceProviderBuilder);
-            }
+            builder.registerSourceFile(sourceFile);
         }
 
-        const file = serviceProviderBuilder.getSourceFile();
-        const textFile = ts.createPrinter().printFile(file);
-        ts.sys.writeFile(file.fileName, textFile);
+        builder.build(builderProgram.getProgram());
 
         // tslint:disable-next-line:no-console
         console.log("** The container was built! **");
     };
 
-    // `createWatchProgram` creates an initial program, watches files, and updates
-    // the program over time.
     ts.createWatchProgram(host);
 };
 
