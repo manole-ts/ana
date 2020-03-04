@@ -40,7 +40,7 @@ export class DependencyInjectionBuilder {
         const graphNodeService = (new GraphNodeServiceFactory()).createService(checker);
         const constructorService = new ConstructorService(graphNodeService, checker);
         this.dependencyGraphBuilder = new GraphSourceFileBuilder(
-            "./.ana/graphs/dependencyGraph.ts",
+            process.cwd() + "/.ana/graphs/dependencyGraph.ts",
             astService,
             constructorService,
         );
@@ -76,8 +76,7 @@ export class DependencyInjectionBuilder {
             program,
         );
 
-        const generatedContainer = builder.getSourceFile("./.ana/containers/generated-container.ts")!;
-
+        const generatedContainer = builder.getSourceFile(file.fileName)!;
         this.emitTransformedContainer(generatedContainer, builder);
     }
 
