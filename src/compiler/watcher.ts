@@ -1,6 +1,6 @@
 import * as ts from "typescript";
-import {DependencyInjectionBuilder} from "./compiler/DependencyInjectionBuilder";
-import SourceFileVisitor from "./compiler/SourceFIleVisitor";
+import {DependencyInjectionBuilder} from "./DependencyInjectionBuilder";
+import SourceFileVisitor from "./SourceFIleVisitor";
 
 const formatHost: ts.FormatDiagnosticsHost = {
     getCanonicalFileName: path => path,
