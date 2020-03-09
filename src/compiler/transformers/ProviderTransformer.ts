@@ -4,6 +4,13 @@ import { HeritageFacade } from "../facades/HeritageFacade";
 import {GraphNodeService} from "../GraphNodeService";
 
 export class ProviderTransformer {
+    private methodsMap = new Map([
+        ["bind", "bindInternal"],
+        ["unbind", "unbindInternal"],
+        ["get", "getInternal"],
+        ["getAll", "getAllInternal"],
+    ]);
+
     constructor(
         private checker: ts.TypeChecker,
         private heritageFacade: HeritageFacade,
@@ -54,12 +61,16 @@ export class ProviderTransformer {
             return node;
         }
 
-        if (propertyAccess.name.escapedText !== "bind") {
+        const methodName = propertyAccess.name.escapedText.toString();
+
+        if (!this.methodsMap.has(methodName)) {
             return node;
         }
 
+        const newMethodName = ts.createIdentifier(this.methodsMap.get(methodName)!);
+
         const newNode = ts.getMutableClone(node);
-        newNode.expression = ts.updatePropertyAccess(propertyAccess, propertyAccess.expression, ts.createIdentifier("bindInternal"));
+        newNode.expression = ts.updatePropertyAccess(propertyAccess, propertyAccess.expression, newMethodName);
 
         const typeArg = this.checker.getTypeFromTypeNode(node.typeArguments![0]);
 
