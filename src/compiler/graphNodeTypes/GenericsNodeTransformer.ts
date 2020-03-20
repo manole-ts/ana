@@ -1,14 +1,10 @@
 import * as ts from "typescript";
 
 import {isTypeReference} from "../../../tests/utils/Guards";
-import {GraphNodeService, INodeTypeObject} from "../GraphNodeService";
+import {GraphNodeService} from "../GraphNodeService";
 import {IGraphNodeTransformer} from "../IGraphNodeTransformer";
+import {GenericsNodeType} from "./types/GenericsNodeType";
 
-interface IGenericsNodeType extends INodeTypeObject {
-    kind: 4;
-    fqcn: string;
-    parameters: INodeTypeObject[];
-}
 export class GenericsNodeTransformer implements IGraphNodeTransformer {
     constructor(private checker: ts.TypeChecker, private service: GraphNodeService) { }
 
@@ -16,7 +12,7 @@ export class GenericsNodeTransformer implements IGraphNodeTransformer {
         return isTypeReference(node);
     }
 
-    public transform(node: ts.Type): IGenericsNodeType {
+    public transform(node: ts.Type): GenericsNodeType {
 
         if (!this.isApplicable(node)) {
             throw new Error("Not applicable to this node");

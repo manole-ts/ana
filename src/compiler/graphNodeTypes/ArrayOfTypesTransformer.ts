@@ -1,11 +1,8 @@
 import * as ts from "typescript";
-import {GraphNodeService, INodeTypeObject} from "../GraphNodeService";
+import {GraphNodeService} from "../GraphNodeService";
 import { IGraphNodeTransformer } from "../IGraphNodeTransformer";
+import {GraphArrayNodeType} from "./types/GraphArrayNodeType";
 
-interface IGraphArrayNodeType extends INodeTypeObject {
-    kind: 3;
-    element: INodeTypeObject | null;
-}
 
 export class ArrayOfTypesTransformer implements IGraphNodeTransformer {
 
@@ -31,7 +28,7 @@ export class ArrayOfTypesTransformer implements IGraphNodeTransformer {
      *
      * @param node
      */
-    public transform(node: ts.Type): IGraphArrayNodeType {
+    public transform(node: ts.Type): GraphArrayNodeType {
         if (!this.isApplicable(node)) {
             throw new Error("Invalid type provided");
         }

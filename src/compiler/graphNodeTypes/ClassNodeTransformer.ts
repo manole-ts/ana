@@ -1,11 +1,6 @@
 import * as ts from "typescript";
-import {INodeTypeObject} from "../GraphNodeService";
 import {IGraphNodeTransformer} from "../IGraphNodeTransformer";
-
-interface IClassNodeType extends INodeTypeObject {
-    kind: 2;
-    fqcn: string;
-}
+import {ClassNodeType} from "./types/ClassNodeType";
 
 export class ClassNodeTransformer implements IGraphNodeTransformer {
 
@@ -25,7 +20,7 @@ export class ClassNodeTransformer implements IGraphNodeTransformer {
      *
      * @param node
      */
-    public transform(node: ts.ObjectType): IClassNodeType {
+    public transform(node: ts.ObjectType): ClassNodeType {
         if (!this.isApplicable(node)) {
             throw new Error("Invalid type provided");
         }
