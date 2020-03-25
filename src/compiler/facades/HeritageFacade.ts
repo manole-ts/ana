@@ -13,7 +13,7 @@ export class HeritageFacade {
 
         const heritage = node.heritageClauses.find(element => element.token === heritageType);
 
-        return (heritage ? heritage.types.map((p) => checker.getTypeAtLocation(p)) : []) as ts.ObjectType[];
+        return (heritage ? heritage.types.map((p) => checker.getTypeFromTypeNode(p)) : []) as ts.ObjectType[];
     }
 
     public getHeritageOfType(
