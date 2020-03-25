@@ -1,4 +1,5 @@
 import * as ts from "typescript";
+import {InterfaceType} from "typescript";
 import {IGraphNodeTransformer} from "../IGraphNodeTransformer";
 import {ClassNodeType} from "./types/ClassNodeType";
 
@@ -11,7 +12,7 @@ export class ClassNodeTransformer implements IGraphNodeTransformer {
      *
      * @param node
      */
-    public isApplicable(node: ts.ObjectType): boolean {
+    public isApplicable(node: ts.Type): node is InterfaceType {
         return node.isClass();
     }
 
@@ -20,7 +21,7 @@ export class ClassNodeTransformer implements IGraphNodeTransformer {
      *
      * @param node
      */
-    public transform(node: ts.ObjectType): ClassNodeType {
+    public transform(node: ts.Type): ClassNodeType {
         if (!this.isApplicable(node)) {
             throw new Error("Invalid type provided");
         }
