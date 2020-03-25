@@ -12,7 +12,7 @@ import {TypeExportable} from "../utils/TypeExportable";
 describe("Container register bind emitter", () => {
     const checker = createProgram([], {}, undefined, undefined, []).getTypeChecker();
 
-    it("should not bind anything when it doesnt have any interfaces/extends", () => {
+    it("should it bind only to itself when it doesnt have any interfaces/extends", () => {
         const type = sinonts.stubInterface<ts.InterfaceType>();
         const heritageFacade = sinon.createStubInstance(HeritageFacade);
         const stubChecker = sinonts.stubObject(checker);
@@ -27,12 +27,12 @@ describe("Container register bind emitter", () => {
         const containerBind = new ServiceProviderAutoBind(
             heritageFacade,
             stubChecker,
-            new TypeExportable(),
+            new TypeExportable(checker),
         );
 
         const providerBuilder = sinonts.stubInterface<IProviderFileBuilder>();
         containerBind.bindType(type, providerBuilder);
-        expect(providerBuilder.addBind.called).to.eq(false);
+        expect(providerBuilder.addBind.calledOnceWith(type, type)).to.eql(true);
     });
 
     it("should bind inheritence types to implementations", () => {
@@ -50,7 +50,7 @@ describe("Container register bind emitter", () => {
             .withArgs(type.symbol.valueDeclaration as ts.ClassDeclaration, stubChecker, ts.SyntaxKind.ExtendsKeyword)
             .returns([parentType]);
 
-        const typeExportable = sinon.createStubInstance(TypeExportable);
+        const typeExportable = sinonts.stubConstructor(TypeExportable);
         typeExportable.isExportable.returns(true);
 
         const containerBind = new ServiceProviderAutoBind(

@@ -24,6 +24,8 @@ export class ServiceProviderAutoBind {
             ts.SyntaxKind.ImplementsKeyword,
         );
 
+        providerFileBuilder.addBind(type, type);
+
         for (const fromType of implementsHeritage) {
             if (!this.typeExportable.isExportable(fromType)) {
                 continue;
