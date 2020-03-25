@@ -24,11 +24,15 @@ export class DependencyInjectionBuilder {
 
     private heritageFacade = new HeritageFacade();
 
+    private readonly typeExportable: TypeExportable;
+
     public constructor(checker: ts.TypeChecker, sourceFileVisitor: SourceFileVisitor) {
         this.sourceFileVisitor = sourceFileVisitor;
         this.checker = checker;
 
-        this.serviceProviderBind = new ServiceProviderAutoBind(this.heritageFacade, checker, new TypeExportable());
+        this.typeExportable = new TypeExportable();
+
+        this.serviceProviderBind = new ServiceProviderAutoBind(this.heritageFacade, checker, this.typeExportable);
 
         const astService = new AstService(checker);
 
@@ -50,6 +54,10 @@ export class DependencyInjectionBuilder {
         const types = this.sourceFileVisitor.visit(sourceFile, this.checker) as ts.InterfaceType[];
 
         for (const type of types) {
+            if (!this.typeExportable.isExportable(type)) {
+                continue;
+            }
+
             this.serviceProviderBind.bindType(type, this.serviceProviderBuilder);
 
             if (sourceFile.isDeclarationFile) {
