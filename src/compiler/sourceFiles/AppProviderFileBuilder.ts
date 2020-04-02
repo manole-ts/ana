@@ -10,7 +10,7 @@ interface IImportStatement { statement: ts.Statement; container: ts.Identifier; 
 export class AppProviderFileBuilder implements IProviderFileBuilder {
 
     private static createImportStatement(): IImportStatement {
-        const iContainer = ts.createOptimisticUniqueName("IContainer");
+        const iContainer = ts.createOptimisticUniqueName("IContainerBuilder");
         const iServiceProvider = ts.createOptimisticUniqueName("IServiceProvider");
         const statement = ts.createImportDeclaration(
             undefined,

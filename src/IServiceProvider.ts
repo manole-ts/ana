@@ -1,5 +1,5 @@
-import IContainer from "./IContainer";
+import {IContainerBuilder} from "./IContainerBuilder";
 
 export default interface IServiceProvider {
-    configure(configure: IContainer): void;
+    configure(configure: IContainerBuilder): void;
 }

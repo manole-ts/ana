@@ -27,7 +27,7 @@ describe("Container register bind emitter", () => {
         const containerBind = new ServiceProviderAutoBind(
             heritageFacade,
             stubChecker,
-            new TypeExportable(checker),
+            new TypeExportable(),
         );
 
         const providerBuilder = sinonts.stubInterface<IProviderFileBuilder>();

@@ -57,7 +57,7 @@ export class ProviderTransformer {
             return node;
         }
 
-        if (interfaceDeclaration.name.escapedText !== "IContainer") {
+        if (interfaceDeclaration.name.escapedText !== "IContainerBuilder") {
             return node;
         }
 
